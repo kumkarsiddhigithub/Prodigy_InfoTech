@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tic-Tac-Toe</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="game-container">
+    <div class="cell" data-cell-index="0"></div>
+    <div class="cell" data-cell-index="1"></div>
+    <div class="cell" data-cell-index="2"></div>
+    <div class="cell" data-cell-index="3"></div>
+    <div class="cell" data-cell-index="4"></div>
+    <div class="cell" data-cell-index="5"></div>
+    <div class="cell" data-cell-index="6"></div>
+    <div class="cell" data-cell-index="7"></div>
+    <div class="cell" data-cell-index="8"></div>
+  </div>
+  <div class="message"></div>
+  <script src="script.js"></script>
+</body>
+</html>
+.game-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 10px;
+}
+
+.cell {
+  border: 1px solid black;
+  font-size: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.message {
+  font-size: 24px;
+  text-align: center;
+  margin-top: 20px;
+}
+const cells = document.querySelectorAll('.cell');
+const message = document.querySelector('.message');
+
+const X_CLASS = 'x';
+const CIRCLE_CLASS = 'circle';
+const WINNING_COMBINATIONS = [
+  [0, 1, 2],
+  [3, 4, 5],
+  [6, 7, 8],
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8],
+  [0, 4, 8],
+  [2, 4, 6]
+];
+
+let circleTurn;
+
+startGame();
+
+function startGame() {
+  circleTurn = false;
+  cells.forEach(cell => {
+    cell.classList.remove(X_CLASS);
+    cell.classList.remove(CIRCLE_CLASS);
+    cell.removeEventListener('click', handleClick);
+    cell.addEventListener('click', handleClick, { once: true });
+  });
+  setBoardHoverEffect();
+  message.textContent = '';
+}
+
+function handleClick(e) {
+  const cell = e.target;
+  const currentClass = circleTurn ? CIRCLE_CLASS : X_CLASS;
+  placeMark(cell, currentClass);
+  if (checkWin(currentClass)) {
+    endGame(false);
+  } else if (isDraw()) {
+    endGame(true);
+  } else {
+    swapTurns();
+    setBoardHoverEffect();
+  }
+}
+
+function placeMark(cell, currentClass) {
+  cell.classList.add(currentClass);
+}
+
+function swapTurns() {
+  circleTurn = !circleTurn;
+}
+
+function setBoardHoverEffect() {
+  cells.forEach(cell => {
+    cell.classList.remove(X_CLASS);
+    cell.classList.remove(CIRCLE_CLASS);
+  });
+  if (circleTurn) {
+    cells.forEach(cell => {
+      if (cell.classList.contains(X_CLASS) || cell.classList.contains(CIRCLE_CLASS)) {
+        return;
+      }
+      cell.classList.add(CIRCLE_CLASS);
+    });
+  } else {
+    cells.forEach(cell => {
+      if (cell.classList.contains(X_CLASS) || cell.classList.contains(CIRCLE_CLASS)) {
+        return;
+      }
+      cell.classList.add(X_CLASS);
+    });
+  }
+}
+
+function checkWin(currentClass) {
+  return WINNING_COMBINATIONS.some(combination => {
+    return combination.every(index => {
+      return cells[index].classList.contains(currentClass);
+    });
+  });
+}
+
+function isDraw() {
+  return [...cells].every(cell => {
+    return cell.classList.contains(X_CLASS) || cell.classList.contains(CIRCLE_CLASS);
+  });
+}
+
+function endGame(draw) {
+  if (draw) {
+    message.textContent = 'Draw!';
+  } else {
+    message.textContent = ${circleTurn ? "O" : "X"}'s wins!;
+  }
+}
